@@ -1,0 +1,57 @@
+# Desarrollo del Videojuego Android
+
+Este proyecto consiste en el desarrollo de un videojuego móvil utilizando Android, con características como la música en segundo plano, la invocación de un servicio web para obtener el puntaje y la implementación de notificaciones para mantener al jugador informado.
+
+## Arquitectura del Proyecto
+
+La aplicación sigue una arquitectura simple y modular con las siguientes características:
+
+- **Actividad principal (`MainActivity`)**: Contiene la interfaz gráfica y maneja la interacción del usuario.
+- **Servicio de música (`MusicService`)**: Se encarga de la reproducción de música en segundo plano.
+- **Volley**: Usado para hacer solicitudes HTTP a un servicio web y obtener los puntajes en formato JSON.
+- **Notificaciones**: Se muestra una notificación con el puntaje del jugador.
+- **Thread y Handler**: Permiten la ejecución de tareas en segundo plano, como el consumo de sensores, sin afectar la interfaz de usuario.
+
+## Tecnologías y Librerías Utilizadas
+
+- **Volley**: Para invocar servicios web y gestionar respuestas en formato JSON. Usado para obtener el puntaje del juego desde un servidor.
+- **MediaPlayer**: Para reproducir música en segundo plano mientras el jugador interactúa con la aplicación.
+- **NotificationManager**: Para mostrar notificaciones en la barra de estado, notificando al jugador sobre la actualización del puntaje.
+- **Thread y Handler**: Utilizados para procesar datos en segundo plano, como los sensores del dispositivo, sin bloquear la interfaz de usuario.
+
+## Desarrollo del Videojuego - Paso a Paso
+
+### 1. Creación de la Interfaz Gráfica (UI)
+
+La interfaz gráfica se crea utilizando **`LinearLayout`**, **`TextView`**, y **`Button`** para estructurar la pantalla principal del videojuego. Los botones permiten iniciar el juego y ver la información "Acerca de".
+
+### 2. Implementación de Música en Segundo Plano
+
+Se creó un **`MusicService`** para manejar la música de fondo, utilizando el **`MediaPlayer`**. El servicio se mantiene activo incluso cuando el jugador navega entre pantallas o minimiza la aplicación. El servicio se inicia en el método `onCreate()` y se detiene en `onDestroy()`.
+
+### 3. Conexión con el Servicio Web
+
+Usamos **Volley** para hacer una solicitud HTTP al servidor y obtener el puntaje en formato JSON. Aquí se detalla cómo se realiza la petición al servicio web y cómo se maneja la respuesta para actualizar el puntaje del jugador.
+
+```java
+String url = "http://tuservidor.com/api/puntaje";  // URL del servicio web
+JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+    new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            try {
+                int puntaje = response.getInt("puntaje");
+                mostrarNotificacion(puntaje);  // Mostrar notificación con el puntaje
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    },
+    new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Toast.makeText(MainActivity.this, "Error al obtener el puntaje", Toast.LENGTH_SHORT).show();
+        }
+    });
+
+Volley.newRequestQueue(this).add(jsonObjectRequest);
